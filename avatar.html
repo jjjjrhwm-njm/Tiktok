@@ -4,44 +4,44 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body { margin: 0; background: #000; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        body { margin: 0; background: #000; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: 'Arial'; }
         video { width: 100%; height: 100%; object-fit: cover; display: none; }
-        #startBtn { position: absolute; z-index: 100; padding: 20px 40px; font-size: 18px; background: #ff1493; color: white; border: none; border-radius: 30px; cursor: pointer; font-family: 'Arial'; }
-        #box { position: absolute; bottom: 10%; background: rgba(0,0,0,0.5); color: #fff; padding: 15px; width: 80%; text-align: center; border-radius: 10px; font-size: 1.1rem; display: none; }
+        #startBtn { position: absolute; z-index: 100; padding: 20px 40px; font-size: 22px; background: #ff1493; color: white; border: none; border-radius: 50px; cursor: pointer; box-shadow: 0 0 20px #ff1493; font-weight: bold; }
+        #msgBox { position: absolute; bottom: 8%; background: rgba(0,0,0,0.6); color: #fff; padding: 15px; width: 85%; text-align: center; border-radius: 15px; font-size: 1.2rem; z-index: 50; display: none; }
     </style>
 </head>
 <body>
-    <button id="startBtn" onclick="activate()">ابدئي المرح يا نور 🎀</button>
+    <button id="startBtn" onclick="launch()">ابدئي السحر يا نور 🎀</button>
     <video id="v" loop playsinline>
         <source src="https://assets.mixkit.co/videos/preview/mixkit-young-woman-with-long-hair-smiling-at-the-camera-40214-large.mp4" type="video/mp4">
     </video>
-    <div id="box">نور معكم.. خلونا ننبسط!</div>
+    <div id="msgBox">نور بانتظاركم.. 🌸</div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
         const v = document.getElementById('v');
         const btn = document.getElementById('startBtn');
-        const box = document.getElementById('box');
+        const msg = document.getElementById('msgBox');
 
-        function activate() {
+        function launch() {
             btn.style.display = 'none';
             v.style.display = 'block';
-            box.style.display = 'block';
+            msg.style.display = 'block';
             v.play();
-            talk("يا هلا بالحلوين.. أنا نور، واليوم البث غير!");
+            talk("يا هلا بالحلوين.. أنا نور، واليوم البث راح يكون خيالي!");
         }
 
         socket.on('speak', (data) => {
             talk(data.text);
-            box.innerText = data.text;
+            msg.innerText = data.text;
         });
 
         function talk(text) {
             window.speechSynthesis.cancel();
             const s = new SpeechSynthesisUtterance(text);
             s.lang = 'ar-SA';
-            s.pitch = 1.4; // صوت أنثوي فرفوش
+            s.pitch = 1.4; // صوت أنثوي دلوع
             s.rate = 0.9;
             window.speechSynthesis.speak(s);
         }
