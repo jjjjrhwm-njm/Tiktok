@@ -1,55 +1,39 @@
 const { WebcastPushConnection } = require('tiktok-live-connector');
-const { GoogleGenerativeAI } = require("@google/generative-ai");
 const Groq = require("groq-sdk");
 const express = require('express');
+const http = require('http');
+const { Server } = require("socket.io");
 require('dotenv').config();
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server); // لربط الجوال بالسيرفر لحظياً
 const port = process.env.PORT || 10000;
 
-// --- إعدادات الحساب (تم التصحيح للأحرف الصغيرة) ---
-let tiktokUsername = "njm_rj"; 
-
+let tiktokUsername = "njm_rj"; // حسابك المصحح
 let tiktokChatConnection = new WebcastPushConnection(tiktokUsername);
-
-// ربط "العقل" الذكي باستخدام المفاتيح التي أضفتها في Render
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-// محاولة الاتصال بالبث المباشر
 tiktokChatConnection.connect().then(state => {
-    console.info(`✅ متصل الآن ببث الحساب: ${tiktokUsername}`);
-}).catch(err => {
-    console.error('❌ فشل الاتصال! تأكد أنك فاتح بث مباشر (Live) حالياً في تيك توك:', err);
-});
+    console.info(`✅ متصل ببث: ${tiktokUsername}`);
+}).catch(err => console.error('❌ تأكد من فتح البث'));
 
-// ١. استقبال التعليقات والرد عليها ذكياً
 tiktokChatConnection.on('chat', async (data) => {
-    console.log(`💬 ${data.nickname}: ${data.comment}`);
-
-    // التعليمات الموجهة للذكاء الاصطناعي (Prompt)
-    const prompt = `أنت مساعد ذكي ومرح في بث تيك توك الخاص بـ "نجم الإبداع" راشد. المستخدم ${data.nickname} يقول: "${data.comment}". رد عليه بالعربية بأسلوب تفاعلي، قصير جداً، ومناسب لأجواء البث المباشر.`;
+    // إرسال التعليق لـ Groq للحصول على رد أنثوي لبق
+    const prompt = `أنتِ مقدمة بث سعودية واقعية جداً. ردي على ${data.nickname} الذي يقول: "${data.comment}". اجعلي الرد قصيراً، ذكياً، وباللهجة البيضاء السعودية.`;
 
     try {
         const completion = await groq.chat.completions.create({
             messages: [{ role: "user", content: prompt }],
             model: "llama-3.3-70b-versatile",
         });
-        
         const reply = completion.choices[0].message.content;
-        console.log(`🤖 الرد الذكي المقترح: ${reply}`);
-    } catch (e) {
-        console.log("⚠️ عذراً، حدث خطأ في معالجة الرد الذكي.");
-    }
+        
+        // إرسال الرد فوراً لصفحة الويب (الجوال) ليتم نطقه وتحريك الشخصية
+        io.emit('speak', { text: reply, user: data.nickname });
+        console.log(`🤖 الرد المرسل للجوال: ${reply}`);
+    } catch (e) { console.log("⚠️ خطأ في العقل"); }
 });
 
-// ٢. التفاعل مع الهدايا (Gifts)
-tiktokChatConnection.on('gift', data => {
-    console.log(`🎁 شكر خاص لـ ${data.nickname} على هدية ${data.giftName}!`);
-});
-
-// إعداد صفحة السيرفر الأساسية
-app.get('/', (req, res) => res.send(`بوت تيك توك الخاص بـ ${tiktokUsername} يعمل بنجاح!`));
-
-app.listen(port, () => {
-    console.log(`🚀 السيرفر يعمل الآن على المنفذ: ${port}`);
-});
+app.get('/', (req, res) => res.sendFile(__dirname + '/avatar.html'));
+server.listen(port, () => console.log(`🚀 السيرفر جاهز على منفذ ${port}`));
