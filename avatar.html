@@ -6,14 +6,14 @@
     <style>
         body { margin: 0; background: #000; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
         video { width: 100%; height: 100%; object-fit: cover; }
-        #overlay { position: absolute; color: white; bottom: 10%; font-family: 'Arial'; text-align: center; width: 100%; background: rgba(0,0,0,0.2); padding: 10px; }
+        #msg { position: absolute; bottom: 5%; color: pink; font-family: 'Arial'; text-shadow: 1px 1px 5px #000; font-size: 1.2rem; text-align: center; width: 100%; }
     </style>
 </head>
 <body>
     <video id="v" autoplay muted loop playsinline>
         <source src="https://v.ftcdn.net/05/53/72/34/700_F_553723467_7nZ8D2H4Y7HnN2xX5S6G7B8E9L1M2N3.mp4" type="video/mp4">
     </video>
-    <div id="overlay">نور متصلة وجاهزة للدردشة معكم 🌸</div>
+    <div id="msg">نور: معكم وبكم يحلو البث 🌸</div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
@@ -23,18 +23,22 @@
         socket.on('speak', (data) => {
             const s = new SpeechSynthesisUtterance(data.text);
             s.lang = 'ar-SA';
-            s.pitch = 1.2; // صوت أنثوي رقيق
-            s.rate = 0.9;
+            s.pitch = 1.3; // نبرة أنثوية رقيقة
+            s.rate = 0.85; // سرعة هادئة ووقورة
             
-            // تفاعل الإضاءة عند الكلام لتبدو واقعية
-            s.onstart = () => v.style.filter = "brightness(1.2)";
+            s.onstart = () => v.style.filter = "brightness(1.2) contrast(1.1)";
             s.onend = () => v.style.filter = "brightness(1)";
             
             window.speechSynthesis.speak(s);
+            document.getElementById('msg').innerText = data.text;
         });
 
-        // مهم: اضغطي على الشاشة فور فتح الرابط لتفعيل الصوت
-        document.body.onclick = () => { v.play(); console.log("الصوت مفعل"); };
+        // تفعيل الفيديو والصوت بلمسة
+        document.body.onclick = () => {
+            v.play();
+            window.speechSynthesis.speak(new SpeechSynthesisUtterance("أهلاً بكم"));
+            console.log("نور انطلقت!");
+        };
     </script>
 </body>
 </html>
