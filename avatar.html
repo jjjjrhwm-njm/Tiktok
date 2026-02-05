@@ -2,44 +2,39 @@
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body { margin: 0; background: #000; overflow: hidden; display: flex; justify-content: center; }
-        video { width: 100vw; height: 100vh; object-fit: cover; filter: brightness(0.9); }
-        #status { position: absolute; bottom: 20px; color: white; font-family: sans-serif; opacity: 0.3; }
+        body { margin: 0; background: #000; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        video { width: 100%; height: 100%; object-fit: cover; }
+        #overlay { position: absolute; color: white; bottom: 10%; font-family: 'Arial'; text-align: center; width: 100%; background: rgba(0,0,0,0.2); padding: 10px; }
     </style>
 </head>
 <body>
-    <video id="avatarVideo" autoplay muted loop playsinline>
-        <source src="https://assets.mixkit.co/videos/preview/mixkit-portrait-of-a-beautiful-woman-smiling-at-the-camera-40213-large.mp4" type="video/mp4">
+    <video id="v" autoplay muted loop playsinline>
+        <source src="https://v.ftcdn.net/05/53/72/34/700_F_553723467_7nZ8D2H4Y7HnN2xX5S6G7B8E9L1M2N3.mp4" type="video/mp4">
     </video>
-    <div id="status">متصل وجاهز للرد...</div>
+    <div id="overlay">نور متصلة وجاهزة للدردشة معكم 🌸</div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
-        const video = document.getElementById('avatarVideo');
+        const v = document.getElementById('v');
 
         socket.on('speak', (data) => {
-            const speech = new SpeechSynthesisUtterance(data.text);
-            speech.lang = 'ar-SA';
-            speech.pitch = 1.1; // صوت أنثوي أكثر رقة
-            speech.rate = 0.9;  // سرعة هادئة ووقورة
-
-            speech.onstart = () => {
-                video.style.filter = "brightness(1.1)"; // إضاءة خفيفة عند الكلام لتبدو متفاعلة
-            };
-            speech.onend = () => {
-                video.style.filter = "brightness(0.9)";
-            };
-
-            window.speechSynthesis.speak(speech);
+            const s = new SpeechSynthesisUtterance(data.text);
+            s.lang = 'ar-SA';
+            s.pitch = 1.2; // صوت أنثوي رقيق
+            s.rate = 0.9;
+            
+            // تفاعل الإضاءة عند الكلام لتبدو واقعية
+            s.onstart = () => v.style.filter = "brightness(1.2)";
+            s.onend = () => v.style.filter = "brightness(1)";
+            
+            window.speechSynthesis.speak(s);
         });
 
-        // تفعيل الصوت بلمسة واحدة
-        document.body.onclick = () => {
-            window.speechSynthesis.speak(new SpeechSynthesisUtterance(""));
-            console.log("الصوت مفعل");
-        };
+        // مهم: اضغطي على الشاشة فور فتح الرابط لتفعيل الصوت
+        document.body.onclick = () => { v.play(); console.log("الصوت مفعل"); };
     </script>
 </body>
 </html>
