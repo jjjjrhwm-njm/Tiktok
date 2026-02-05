@@ -1,0 +1,26 @@
+const { WebcastPushConnection } = require('tiktok-live-connector');
+const express = require('express');
+require('dotenv').config();
+
+const app = express();
+const port = process.env.PORT || 10000;
+
+// ضع اسم حسابك في تيك توك هنا بدون علامة @
+let tiktokUsername = "اكتب_يوزرك_هنا"; 
+
+let tiktokChatConnection = new WebcastPushConnection(tiktokUsername);
+
+tiktokChatConnection.connect().then(state => {
+    console.info(`✅ متصل الآن ببث: ${state.roomId}`);
+}).catch(err => {
+    console.error('❌ فشل الاتصال (تأكد أن البث المباشر شغال):', err);
+});
+
+// استقبال التعليقات
+tiktokChatConnection.on('chat', data => {
+    console.log(`💬 ${data.nickname}: ${data.comment}`);
+    // هنا سنضيف لاحقاً كود الرد الصوتي والذكاء الاصطناعي
+});
+
+app.get('/', (req, res) => res.send('بث تيك توك نشط الآن!'));
+app.listen(port, () => console.log(`السيرفر يعمل على منفذ ${port}`));
