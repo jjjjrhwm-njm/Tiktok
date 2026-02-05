@@ -1,33 +1,45 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar">
 <head>
-    <title>AI Avatar - Real Girl</title>
+    <meta charset="UTF-8">
     <style>
-        body { margin: 0; background: black; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
-        /* هنا تضع صورة البنت الواقعية التي تريدها */
-        #avatar { width: 100%; height: 100%; object-fit: cover; }
-        .talking { animation: pulse 0.5s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 1; } }
+        body { margin: 0; background: #000; overflow: hidden; display: flex; justify-content: center; }
+        video { width: 100vw; height: 100vh; object-fit: cover; filter: brightness(0.9); }
+        #status { position: absolute; bottom: 20px; color: white; font-family: sans-serif; opacity: 0.3; }
     </style>
 </head>
 <body>
-    <img id="avatar" src="https://images.pexels.com/photos/1587009/pexels-photo-1587009.jpeg" alt="Real Girl Avatar">
+    <video id="avatarVideo" autoplay muted loop playsinline>
+        <source src="https://assets.mixkit.co/videos/preview/mixkit-portrait-of-a-beautiful-woman-smiling-at-the-camera-40213-large.mp4" type="video/mp4">
+    </video>
+    <div id="status">متصل وجاهز للرد...</div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
-        const avatar = document.getElementById('avatar');
+        const video = document.getElementById('avatarVideo');
 
         socket.on('speak', (data) => {
             const speech = new SpeechSynthesisUtterance(data.text);
-            speech.lang = 'ar-SA'; // نطق سعودي
-            
-            // محاكاة حركة الكلام
-            speech.onstart = () => avatar.classList.add('talking');
-            speech.onend = () => avatar.classList.remove('talking');
-            
+            speech.lang = 'ar-SA';
+            speech.pitch = 1.1; // صوت أنثوي أكثر رقة
+            speech.rate = 0.9;  // سرعة هادئة ووقورة
+
+            speech.onstart = () => {
+                video.style.filter = "brightness(1.1)"; // إضاءة خفيفة عند الكلام لتبدو متفاعلة
+            };
+            speech.onend = () => {
+                video.style.filter = "brightness(0.9)";
+            };
+
             window.speechSynthesis.speak(speech);
         });
+
+        // تفعيل الصوت بلمسة واحدة
+        document.body.onclick = () => {
+            window.speechSynthesis.speak(new SpeechSynthesisUtterance(""));
+            console.log("الصوت مفعل");
+        };
     </script>
 </body>
 </html>
