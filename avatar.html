@@ -5,40 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body { margin: 0; background: #000; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        video { width: 100%; height: 100%; object-fit: cover; }
-        #msg { position: absolute; bottom: 5%; color: pink; font-family: 'Arial'; text-shadow: 1px 1px 5px #000; font-size: 1.2rem; text-align: center; width: 100%; }
+        video { width: 100%; height: 100%; object-fit: cover; display: none; }
+        #startBtn { position: absolute; z-index: 100; padding: 20px 40px; font-size: 18px; background: #ff1493; color: white; border: none; border-radius: 30px; cursor: pointer; font-family: 'Arial'; }
+        #box { position: absolute; bottom: 10%; background: rgba(0,0,0,0.5); color: #fff; padding: 15px; width: 80%; text-align: center; border-radius: 10px; font-size: 1.1rem; display: none; }
     </style>
 </head>
 <body>
-    <video id="v" autoplay muted loop playsinline>
-        <source src="https://v.ftcdn.net/05/53/72/34/700_F_553723467_7nZ8D2H4Y7HnN2xX5S6G7B8E9L1M2N3.mp4" type="video/mp4">
+    <button id="startBtn" onclick="activate()">ابدئي المرح يا نور 🎀</button>
+    <video id="v" loop playsinline>
+        <source src="https://assets.mixkit.co/videos/preview/mixkit-young-woman-with-long-hair-smiling-at-the-camera-40214-large.mp4" type="video/mp4">
     </video>
-    <div id="msg">نور: معكم وبكم يحلو البث 🌸</div>
+    <div id="box">نور معكم.. خلونا ننبسط!</div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
         const v = document.getElementById('v');
+        const btn = document.getElementById('startBtn');
+        const box = document.getElementById('box');
+
+        function activate() {
+            btn.style.display = 'none';
+            v.style.display = 'block';
+            box.style.display = 'block';
+            v.play();
+            talk("يا هلا بالحلوين.. أنا نور، واليوم البث غير!");
+        }
 
         socket.on('speak', (data) => {
-            const s = new SpeechSynthesisUtterance(data.text);
-            s.lang = 'ar-SA';
-            s.pitch = 1.3; // نبرة أنثوية رقيقة
-            s.rate = 0.85; // سرعة هادئة ووقورة
-            
-            s.onstart = () => v.style.filter = "brightness(1.2) contrast(1.1)";
-            s.onend = () => v.style.filter = "brightness(1)";
-            
-            window.speechSynthesis.speak(s);
-            document.getElementById('msg').innerText = data.text;
+            talk(data.text);
+            box.innerText = data.text;
         });
 
-        // تفعيل الفيديو والصوت بلمسة
-        document.body.onclick = () => {
-            v.play();
-            window.speechSynthesis.speak(new SpeechSynthesisUtterance("أهلاً بكم"));
-            console.log("نور انطلقت!");
-        };
+        function talk(text) {
+            window.speechSynthesis.cancel();
+            const s = new SpeechSynthesisUtterance(text);
+            s.lang = 'ar-SA';
+            s.pitch = 1.4; // صوت أنثوي فرفوش
+            s.rate = 0.9;
+            window.speechSynthesis.speak(s);
+        }
     </script>
 </body>
 </html>
