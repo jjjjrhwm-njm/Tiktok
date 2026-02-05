@@ -1,1 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Avatar - Real Girl</title>
+    <style>
+        body { margin: 0; background: black; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        /* هنا تضع صورة البنت الواقعية التي تريدها */
+        #avatar { width: 100%; height: 100%; object-fit: cover; }
+        .talking { animation: pulse 0.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 1; } }
+    </style>
+</head>
+<body>
+    <img id="avatar" src="https://images.pexels.com/photos/1587009/pexels-photo-1587009.jpeg" alt="Real Girl Avatar">
 
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const avatar = document.getElementById('avatar');
+
+        socket.on('speak', (data) => {
+            const speech = new SpeechSynthesisUtterance(data.text);
+            speech.lang = 'ar-SA'; // نطق سعودي
+            
+            // محاكاة حركة الكلام
+            speech.onstart = () => avatar.classList.add('talking');
+            speech.onend = () => avatar.classList.remove('talking');
+            
+            window.speechSynthesis.speak(speech);
+        });
+    </script>
+</body>
+</html>
